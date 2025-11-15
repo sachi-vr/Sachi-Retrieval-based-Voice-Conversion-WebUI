@@ -2,6 +2,7 @@ import torch
 import sys
 import os
 import traceback
+import argparse
 
 # Add infer directory to path
 now_dir = os.getcwd()
@@ -94,7 +95,7 @@ def convert_to_onnx(model_path, exported_path):
             ),
             exported_path,
             do_constant_folding=False,
-            opset_version=16,
+            opset_version=18,
             verbose=False,
             input_names=input_names,
             output_names=output_names,
@@ -107,10 +108,18 @@ def convert_to_onnx(model_path, exported_path):
         traceback.print_exc()
 
 if __name__ == "__main__":
-    MODEL_PATH = "sachirvc2merge1/sachirvc2_80pct_freecool_20pct.pth"
-    EXPORTED_PATH = "sachirvc2_80pct_freecool_20pct.onnx"
-    
+    parser = argparse.ArgumentParser(description="Convert .pth model to ONNX")
+    parser.add_argument("-m", "--model", dest="model", default="sachirvc2merge1/sachirvc2_80pct_freecool_20pct.pth",
+                        help="Path to the input .pth model (default: sachirvc2merge1/...)")
+    parser.add_argument("-o", "--output", dest="output", default="sachirvc2_80pct_freecool_20pct.onnx",
+                        help="Path where the exported .onnx will be saved (default: sachirvc2_80pct_freecool_20pct.onnx)")
+    args = parser.parse_args()
+
+    MODEL_PATH = args.model
+    EXPORTED_PATH = args.output
+
     if not os.path.exists(MODEL_PATH):
         print(f"エラー: モデルファイルが見つかりません: {MODEL_PATH}")
-    else:
-        convert_to_onnx(MODEL_PATH, EXPORTED_PATH)
+        sys.exit(2)
+
+    convert_to_onnx(MODEL_PATH, EXPORTED_PATH)

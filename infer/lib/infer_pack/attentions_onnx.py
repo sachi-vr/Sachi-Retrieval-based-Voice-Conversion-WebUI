@@ -314,8 +314,10 @@ class MultiHeadAttention(nn.Module):
         max_relative_position = 2 * self.window_size + 1
         # Pad first before slice to avoid using cond ops.
 
-        pad_length = torch.clamp(length - (self.window_size + 1), min=0)
-        slice_start_position = torch.clamp((self.window_size + 1) - length, min=0)
+        pad_length = torch.clamp(torch.tensor(length - (self.window_size + 1)), min=0)
+        slice_start_position = torch.clamp(
+        torch.tensor((self.window_size + 1) - length), min=0
+    )
         slice_end_position = slice_start_position + 2 * length - 1
         padded_relative_embeddings = F.pad(
             relative_embeddings,
